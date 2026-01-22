@@ -1,0 +1,72 @@
+@if (visible) {
+<div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2 class="modal-title">JOKER SHOP</h2>
+            <button class="close-btn" (click)="closeModal()">✕</button>
+        </div>
+
+        <div class="shop-info">
+            <div class="info-item">
+                <span class="info-icon">💰</span>
+                <span class="info-text">{{ chips }} Chips</span>
+            </div>
+            <div class="info-item">
+                <span class="info-icon">🃏</span>
+                <span class="info-text">{{ activeJokerCount }}/{{ MAX_JOKERS }} Jokers</span>
+            </div>
+        </div>
+
+        <h3 class="subtitle">Available Jokers:</h3>
+
+        <div class="joker-grid">
+            @for (joker of shopJokers; track joker.id) {
+            <div class="joker-card" [class.selected]="selectedJoker?.id === joker.id"
+                [class.disabled]="!canBuyJoker(joker)" [attr.data-rarity]="joker.rarity"
+                (click)="canBuyJoker(joker) && selectJoker(joker)">
+
+                <div class="joker-image-container">
+                    <img [src]="joker.icon" [alt]="joker.name" class="joker-image">
+                    <div class="rarity-badge" [style.background-color]="getRarityColor(joker.rarity)">
+                        {{ getRarityLabel(joker.rarity) }}
+                    </div>
+                </div>
+
+                <div class="joker-info">
+                    <h4 class="joker-name">{{ joker.name }}</h4>
+                    <p class="joker-description">{{ joker.description }}</p>
+
+                    <div class="joker-footer">
+                        <div class="joker-cost">
+                            <span class="cost-icon">💰</span>
+                            <span class="cost-value">{{ joker.cost }}</span>
+                        </div>
+
+                        @if (canBuyJoker(joker)) {
+                        <button class="buy-button" (click)="buyJoker(joker); $event.stopPropagation()">
+                            BUY
+                        </button>
+                        } @else if (activeJokerCount >= MAX_JOKERS) {
+                        <span class="disabled-text">FULL</span>
+                        } @else {
+                        <span class="disabled-text">TOO EXPENSIVE</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+
+        <button class="refresh-button" (click)="refreshShop()">
+            <span class="refresh-icon">🔄</span>
+            Refresh Shop (Free)
+        </button>
+
+        @if (activeJokerCount >= MAX_JOKERS) {
+        <div class="warning-banner">
+            ⚠️ You have maximum jokers! Remove one to buy more.
+        </div>
+        }
+    </div>
+</div>
+}

@@ -1,0 +1,43 @@
+@if (visible) {
+<div class="modal-overlay">
+    <div class="modal-content">
+        <div class="header">
+            <h1 class="title">RUN OVER</h1>
+            <div class="run-badge">Run #{{ stats.runNumber }}</div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <span class="stat-label">Total Spins</span>
+                <span class="stat-value">{{ stats.totalSpins }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Total Winnings</span>
+                <span class="stat-value">💰 {{ stats.totalWinnings }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Highest Win</span>
+                <span class="stat-value">🔥 {{ stats.highestWin }}</span>
+            </div>
+        </div>
+
+        <div class="reward-section">
+            <h3 class="reward-title">Meta-Progression</h3>
+            <div class="reward-card">
+                <div class="reward-icon">💎</div>
+                <div class="reward-info">
+                    <span class="reward-amount">+{{ metaCurrencyEarned }}</span>
+                    <span class="reward-label">Neon Shards Earned</span>
+                </div>
+            </div>
+            <p class="reward-desc">Neon Shards persist across runs and are used for permanent upgrades.</p>
+        </div>
+
+        <div class="footer">
+            <button class="end-run-btn" (click)="endRun()">
+                COLLECT & NEW RUN
+            </button>
+        </div>
+    </div>
+</div>
+}

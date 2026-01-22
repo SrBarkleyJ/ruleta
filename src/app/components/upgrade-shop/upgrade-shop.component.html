@@ -1,0 +1,58 @@
+@if (visible) {
+<div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2 class="modal-title">WHEEL MODIFIER</h2>
+            <button class="close-btn" (click)="closeModal()">✕</button>
+        </div>
+
+        <h3 class="subtitle">Select a Sector to Upgrade:</h3>
+        <div class="sector-list">
+            @for (sector of sectors; track sector.id) {
+            <button class="sector-card" [class.selected]="selectedSector?.id === sector.id"
+                [style.border-color]="sector.color" (click)="selectSector(sector)">
+                <div class="color-dot" [style.background-color]="sector.color"></div>
+                <span class="sector-label">{{ sector.label }}</span>
+                @if (sector.weight > 1) {
+                <span class="weight-badge">×{{ sector.weight }}</span>
+                }
+            </button>
+            }
+        </div>
+
+        @if (selectedSector) {
+        <h3 class="subtitle">Available Upgrades:</h3>
+        <div class="upgrade-list">
+            @for (upgrade of upgrades; track upgrade.id) {
+            <button class="upgrade-item" [class.disabled]="!canBuy(upgrade)" [disabled]="!canBuy(upgrade)"
+                (click)="buyUpgrade(upgrade)" [title]="upgrade.description || ''">
+                <div class="upgrade-info">
+                    <div class="icon-container" [style.background-color]="hexToRgba(upgrade.color)">
+                        <div class="icon" [style.color]="upgrade.color">
+                            @if (upgrade.type === 'mult') { 📈 }
+                            @if (upgrade.type === 'color') { 🎨 }
+                            @if (upgrade.type === 'weight') { ⚖️ }
+                        </div>
+                    </div>
+                    <div>
+                        <div class="upgrade-name">{{ upgrade.name }}</div>
+                        <div class="upgrade-cost">{{ upgrade.cost }} Chips</div>
+                        @if (upgrade.description) {
+                        <div class="upgrade-desc">{{ upgrade.description }}</div>
+                        }
+                    </div>
+                </div>
+                <span class="chevron">›</span>
+            </button>
+            }
+        </div>
+        }
+
+        @if (!selectedSector) {
+        <div class="empty-state">
+            <p class="empty-text">Pick a slice of the wheel above to start modifying</p>
+        </div>
+        }
+    </div>
+</div>
+}

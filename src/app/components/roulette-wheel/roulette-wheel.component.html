@@ -1,0 +1,19 @@
+<div class="roulette-container">
+    <svg class="wheel-svg" [attr.width]="wheelSize" [attr.height]="wheelSize"
+        [attr.viewBox]="'0 0 ' + wheelSize + ' ' + wheelSize">
+        <g>
+            @for (sector of sectors; track sector.id; let i = $index) {
+            <g>
+                <path [attr.d]="getSectorPath(i)" [attr.fill]="sector.color" stroke="#0a0a0f" stroke-width="2" />
+                <text [attr.x]="getLabelPosition(i).x" [attr.y]="getLabelPosition(i).y"
+                    [attr.transform]="'rotate(' + getLabelPosition(i).rotation + ' ' + getLabelPosition(i).x + ' ' + getLabelPosition(i).y + ')'"
+                    fill="#f5f5f5" font-size="14" font-weight="bold" text-anchor="middle" dominant-baseline="middle">
+                    {{ sector.label }}
+                </text>
+            </g>
+            }
+            <circle [attr.cx]="radius" [attr.cy]="radius" r="20" fill="#0a0a0f" stroke="#a855f7" stroke-width="3" />
+        </g>
+    </svg>
+    <div class="indicator"></div>
+</div>

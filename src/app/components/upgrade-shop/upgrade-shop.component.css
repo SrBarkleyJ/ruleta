@@ -1,0 +1,226 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: var(--color-surface);
+    border-top-left-radius: var(--radius-xl);
+    border-top-right-radius: var(--radius-xl);
+    padding: var(--spacing-lg);
+    max-height: 80vh;
+    width: 100%;
+    max-width: 600px;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.modal-title {
+    color: var(--color-primary);
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px var(--color-primary);
+}
+
+.close-btn {
+    background: none;
+    color: var(--color-text);
+    font-size: 24px;
+    padding: var(--spacing-sm);
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: var(--color-primary);
+}
+
+.subtitle {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: var(--spacing-md);
+    text-transform: uppercase;
+}
+
+.sector-list {
+    display: flex;
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-sm);
+}
+
+.sector-card {
+    position: relative;
+    min-width: 70px;
+    height: 70px;
+    background-color: var(--color-background);
+    border-radius: var(--radius-md);
+    border: 2px solid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sector-card:hover {
+    transform: scale(1.05);
+}
+
+.sector-card.selected {
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 20px currentColor;
+}
+
+.color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.sector-label {
+    color: var(--color-text);
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.weight-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: var(--color-accent);
+    color: var(--color-text);
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 8px var(--color-accent);
+}
+
+.upgrade-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.upgrade-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--color-background);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.upgrade-item:hover:not(.disabled) {
+    border-color: var(--color-primary);
+    transform: translateX(4px);
+}
+
+.upgrade-item.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.upgrade-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.icon-container {
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon {
+    font-size: 20px;
+}
+
+.upgrade-name {
+    color: var(--color-text);
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.upgrade-cost {
+    color: var(--color-gold);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.upgrade-desc {
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+.chevron {
+    color: var(--color-text-secondary);
+    font-size: 20px;
+}
+
+.empty-state {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+}
+
+.empty-text {
+    color: var(--color-text-secondary);
+    text-align: center;
+    font-style: italic;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+    .modal-overlay {
+        align-items: center;
+    }
+
+    .modal-content {
+        border-radius: var(--radius-xl);
+    }
+}
