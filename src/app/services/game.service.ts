@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { GameState, Sector, Joker, Amulet, RunStats, BlindType, BlindState } from '../models/game.model';
+import { GameState, Sector, Joker, Amulet, RunStats, BlindType, BlindState, WheelSkin } from '../models/game.model';
+import { JokerService } from './joker.service';
 
 const STORAGE_KEY = 'neon_roulette_state';
-const CURRENT_VERSION = 4; // Incremented for skins
+const CURRENT_VERSION = 4;
 
 export const AVAILABLE_SKINS: WheelSkin[] = [
     {
@@ -98,8 +99,6 @@ export const AVAILABLE_SKINS: WheelSkin[] = [
     }
 ];
 
-import { WheelSkin } from '../models/game.model';
-
 const INITIAL_SECTORS: Sector[] = [
     { id: '1', label: '0x', color: '#1e293b', multiplier: 0, weight: 1, shardProbability: 0.01, shardAmount: 10 },
     { id: '2', label: '2x', color: '#312e81', multiplier: 2, weight: 1, shardProbability: 0.01, shardAmount: 10 },
@@ -155,7 +154,7 @@ export class GameService {
     private stateSubject = new BehaviorSubject<GameState>(INITIAL_STATE);
     public state$: Observable<GameState> = this.stateSubject.asObservable();
 
-    constructor() {
+    constructor(private jokerService: JokerService) {
         this.loadState();
     }
 
@@ -189,11 +188,10 @@ export class GameService {
     private validateGameState(state: any): GameState | null {
         try {
             if (!state || typeof state !== 'object') return null;
-            if (state.version !== CURRENT_VERSION) return null; // Force reset for new mechanics
+            if (state.version !== CURRENT_VERSION) return null;
             if (typeof state.chips !== 'number' || state.chips < 0) return null;
             if (!Array.isArray(state.sectors) || state.sectors.length === 0) return null;
 
-            // Ensure all sectors have weight property (add default if missing for backwards compatibility)
             const sectorsWithShardProb = state.sectors.map((s: any) => ({
                 ...s,
                 weight: s.weight || 1,
@@ -228,12 +226,46 @@ export class GameService {
         return this.stateSubject.value;
     }
 
-    spin(targetIndex: number, winAmount: number): void {
+    /**
+     * Start the spin process: deduct bet, select target, and return it.
+     */
+    startSpin(): number | null {
+        const currentState = this.stateSubject.value;
+        const bet = currentState.selectedBet;
+
+        if (currentState.chips < bet) return null;
+
+        const targetIndex = this.selectWeightedSector();
+
+        const newState: GameState = {
+            ...currentState,
+            chips: currentState.chips - bet,
+            lastWin: 0
+        };
+
+        this.stateSubject.next(newState);
+        this.saveState(newState);
+
+        return targetIndex;
+    }
+
+    /**
+     * Complete the spin process: calculate reward and add gems/stats.
+     */
+    spin(targetIndex: number): void {
         const currentState = this.stateSubject.value;
         const targetSector = currentState.sectors[targetIndex];
 
-        // Apply joker effects to win amount
-        let finalWinAmount = this.applyJokerEffects(winAmount, targetSector);
+        // The bet was deducted in startSpin.
+        const baseReward = currentState.selectedBet * targetSector.multiplier;
+
+        // Apply all joker effects using the dedicated service
+        const finalWinAmount = this.jokerService.applyJokerEffectsToWin(
+            baseReward,
+            currentState.jokers,
+            targetSector.multiplier,
+            currentState.selectedBet
+        );
 
         // Update sector hit stats
         const updatedSectorsHit = {
@@ -269,17 +301,15 @@ export class GameService {
             }
         };
 
-        // Check for victory or defeat
-        if (targetSector.isDeath) {
-            newState.isGameOver = true;
-        } else if (updatedBlindState.currentScore >= updatedBlindState.targetScore) {
-            // Round Won! But we wait for UI to handle transition
-        } else if (updatedBlindState.spinsRemaining === 0) {
-            newState.isGameOver = true;
-        }
-
         this.stateSubject.next(newState);
         this.saveState(newState);
+
+        // Check for victory or defeat
+        if (targetSector.isDeath) {
+            this.setGameOver(true);
+        } else if (updatedBlindState.spinsRemaining === 0 && updatedBlindState.currentScore < updatedBlindState.targetScore) {
+            this.setGameOver(true);
+        }
     }
 
     bet(amount: number): void {
@@ -292,9 +322,6 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Deduct chips from the balance
-     */
     spendChips(amount: number): void {
         const currentState = this.stateSubject.value;
         const newState = {
@@ -305,9 +332,6 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Development tool: Add chips directly to the state
-     */
     addChips(amount: number): void {
         const currentState = this.stateSubject.value;
         const newState = {
@@ -351,65 +375,20 @@ export class GameService {
         this.saveState(newState);
     }
 
-    // ========== NEW ROGUELIKE METHODS ==========
-
-    /**
-     * Select a random sector based on weights (higher weight = higher probability)
-     */
     selectWeightedSector(): number {
         const currentState = this.stateSubject.value;
         const sectors = currentState.sectors;
-
-        // Calculate total weight
         const totalWeight = sectors.reduce((sum, s) => sum + s.weight, 0);
-
-        // Generate random number between 0 and totalWeight
         let random = Math.random() * totalWeight;
 
-        // Find the sector that corresponds to this random value
         for (let i = 0; i < sectors.length; i++) {
             random -= sectors[i].weight;
             if (random <= 0) {
                 return i;
             }
         }
-
-        // Fallback (should never happen)
         return 0;
     }
-
-    /**
-     * Apply all active joker effects to the win amount
-     */
-    private applyJokerEffects(baseWinAmount: number, targetSector: Sector): number {
-        const currentState = this.stateSubject.value;
-        let finalAmount = baseWinAmount;
-
-        for (const joker of currentState.jokers) {
-            for (const effect of joker.effects) {
-                switch (effect.type) {
-                    case 'win_multiplier':
-                        finalAmount *= effect.value;
-                        break;
-                    case 'sector_boost':
-                        if (effect.targetSectorId === targetSector.id) {
-                            finalAmount *= effect.value;
-                        }
-                        break;
-                    case 'refund':
-                        // This would be handled elsewhere (in the bet method)
-                        break;
-                    // Add more effect types as needed
-                }
-            }
-        }
-
-        return Math.floor(finalAmount);
-    }
-
-    /**
-     * Increase the weight of a specific sector
-     */
     increaseSectorWeight(id: string, weightIncrease: number = 1): void {
         const currentState = this.stateSubject.value;
         const newSectors = currentState.sectors.map(s => {
@@ -430,9 +409,6 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Increase the shard probability of a specific sector
-     */
     upgradeSectorShardProb(id: string, probIncrease: number = 0.005): void {
         const currentState = this.stateSubject.value;
         const newSectors = currentState.sectors.map(s => {
@@ -453,9 +429,6 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Add a joker to the current run
-     */
     addJoker(joker: Joker): void {
         const currentState = this.stateSubject.value;
         const newState = {
@@ -466,9 +439,6 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Remove a joker from the current run
-     */
     removeJoker(jokerId: string): void {
         const currentState = this.stateSubject.value;
         const newState = {
@@ -479,9 +449,6 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Add an amulet to the current run
-     */
     addAmulet(amulet: Amulet): void {
         const currentState = this.stateSubject.value;
         const newState = {
@@ -492,25 +459,13 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Check if the player can continue (has enough chips for minimum bet)
-     */
     checkGameOver(minimumBet: number = 10): boolean {
-        const currentState = this.stateSubject.value;
-        return currentState.chips < minimumBet;
+        return this.stateSubject.value.chips < minimumBet;
     }
 
-    /**
-     * End the current run and start a new one
-     * Saves meta-currency and resets the game state
-     */
     endRun(): void {
         const currentState = this.stateSubject.value;
-
-        // Calculate meta-currency earned (10% of total winnings)
         const earnedMetaCurrency = Math.floor(currentState.runStats.totalWinnings * 0.1);
-
-        // Create new run stats
         const newRunStats: RunStats = {
             runNumber: currentState.runStats.runNumber + 1,
             totalSpins: 0,
@@ -519,22 +474,16 @@ export class GameService {
             sectorsHit: {},
             startingChips: 500
         };
-
-        // Reset to initial state but keep meta-currency
         const newState: GameState = {
             ...INITIAL_STATE,
             runStats: newRunStats,
             metaCurrency: currentState.metaCurrency + earnedMetaCurrency,
             isGameOver: false
         };
-
         this.stateSubject.next(newState);
         this.saveState(newState);
     }
 
-    /**
-     * Start a new blind based on current progression
-     */
     nextBlind(): void {
         const currentState = this.stateSubject.value;
         let nextType: BlindType = 'SMALL';
@@ -550,7 +499,6 @@ export class GameService {
         }
 
         const baseScore = 300;
-        // Increase target score by 40% (1.4x) for each blind progressed
         const blindProgressionCount = (currentState.currentAnte - 1) * 3 +
             (currentState.blindState.type === 'SMALL' ? 1 : currentState.blindState.type === 'BIG' ? 2 : 3);
 
@@ -579,9 +527,6 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Complete the current round, collect rewards and open shop
-     */
     completeRound(): void {
         const currentState = this.stateSubject.value;
         const newState: GameState = {
@@ -593,9 +538,6 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Close the shop and proceed to next blind
-     */
     closeShop(): void {
         const currentState = this.stateSubject.value;
         const newState: GameState = {
@@ -617,18 +559,11 @@ export class GameService {
         this.saveState(newState);
     }
 
-    /**
-     * Exchange chips for permanent shards (meta-currency)
-     * Rate: 1000 chips = 10 shards
-     */
     exchangeChipsForShards(chipsAmount: number): boolean {
         const currentState = this.stateSubject.value;
-        if (chipsAmount <= 0 || currentState.chips < chipsAmount) {
-            return false;
-        }
+        if (chipsAmount <= 0 || currentState.chips < chipsAmount) return false;
 
-        const shardsEarned = Math.floor(chipsAmount / 100); // 1000 chips = 10 shards => 100 chips = 1 shard
-
+        const shardsEarned = Math.floor(chipsAmount / 100);
         const newState: GameState = {
             ...currentState,
             chips: currentState.chips - chipsAmount,
@@ -639,36 +574,26 @@ export class GameService {
         return true;
     }
 
-    /**
-     * Buy a new skin using meta-currency
-     */
     buySkin(skinId: string): boolean {
         const currentState = this.stateSubject.value;
         const skin = AVAILABLE_SKINS.find(s => s.id === skinId);
-
-        if (!skin || currentState.unlockedSkinIds.includes(skinId)) {
-            return false;
-        }
+        if (!skin || currentState.unlockedSkinIds.includes(skinId)) return false;
 
         if (currentState.metaCurrency >= skin.price) {
             const newState: GameState = {
                 ...currentState,
                 metaCurrency: currentState.metaCurrency - skin.price,
                 unlockedSkinIds: [...currentState.unlockedSkinIds, skinId],
-                activeSkinId: skinId // Automatically apply newly bought skin
+                activeSkinId: skinId
             };
             this.stateSubject.next(newState);
             this.saveState(newState);
             this.applySkinToSectors(skinId);
             return true;
         }
-
         return false;
     }
 
-    /**
-     * Apply an already unlocked skin
-     */
     applySkin(skinId: string): void {
         const currentState = this.stateSubject.value;
         if (currentState.unlockedSkinIds.includes(skinId)) {
@@ -682,19 +607,12 @@ export class GameService {
         }
     }
 
-    /**
-     * Discard current wheel and generate a fresh configuration.
-     * Cost: 1000 chips
-     */
     rerollWheel(): boolean {
         const currentState = this.stateSubject.value;
         const REROLL_COST = 1000;
-
         if (currentState.chips < REROLL_COST) return false;
 
-        // Pool of multipliers for a "standard" balanced wheel
         const multPool = [0, 0.5, 1, 1, 2, 2, 5, 10];
-        // Shuffle pool
         const shuffledMults = [...multPool].sort(() => Math.random() - 0.5);
 
         const freshSectors: Sector[] = shuffledMults.map((mult, i) => ({
@@ -707,8 +625,6 @@ export class GameService {
             shardAmount: 10
         }));
 
-        // Handle special death sector (ensure at least one 💀 if feeling brave, but let's stick to multipliers for now)
-        // Or simply replace 0x with 💀 randomly
         const deathIndex = Math.floor(Math.random() * freshSectors.length);
         if (freshSectors[deathIndex].multiplier === 0) {
             freshSectors[deathIndex].label = '💀';
@@ -724,16 +640,10 @@ export class GameService {
 
         this.stateSubject.next(newState);
         this.saveState(newState);
-        // Apply current skin to the new sectors
         this.applySkinToSectors(currentState.activeSkinId);
         return true;
     }
 
-    /**
-     * Update sector colors based on skin
-     * Note: This might override custom color upgrades. 
-     * In a more complex version, we might store "baseColor" vs "customColor".
-     */
     private applySkinToSectors(skinId: string): void {
         const skin = AVAILABLE_SKINS.find(s => s.id === skinId);
         if (!skin) return;

@@ -41,30 +41,22 @@ export class GameScreenComponent {
 
     handleSpin(): void {
         if (this.isSpinning || (this.gameState.blindState.spinsRemaining || 0) <= 0) return;
-        if (this.gameState.chips < this.gameState.selectedBet) return;
+
+        const targetSectorIndex = this.gameService.startSpin();
+        if (targetSectorIndex === null) return;
 
         this.isSpinning = true;
-
-        // Deduct chips at start of spin
-        this.gameService.addChips(-this.gameState.selectedBet);
-        this.gameService.resetWin();
         this.showWinAnimation = false;
-
-        // Use weighted sector selection
-        const targetSectorIndex = this.gameService.selectWeightedSector();
         this.wheelComponent.spinToSector(targetSectorIndex);
     }
 
     onSpinComplete(sectorIndex: number): void {
         this.isSpinning = false;
-        const sector = this.gameState.sectors[sectorIndex];
-        const winAmount = this.gameState.selectedBet * sector.multiplier;
-
-        this.gameService.spin(sectorIndex, winAmount);
+        this.gameService.spin(sectorIndex);
         this.showWinAnimation = true;
 
         // Shake effect for big wins
-        if (winAmount >= 50) {
+        if (this.gameState.lastWin >= 50) {
             const container = document.querySelector('.game-container');
             container?.classList.add('shake');
             setTimeout(() => {
