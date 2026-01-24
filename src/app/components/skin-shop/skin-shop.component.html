@@ -1,0 +1,51 @@
+<div class="shop-overlay" (click)="close.emit()">
+    <div class="shop-container" (click)="$event.stopPropagation()">
+        <div class="shop-header">
+            <h2>{{ translationService.translate('SKIN_SHOP_TITLE') || 'Skin Shop' }}</h2>
+            <button class="close-btn" (click)="close.emit()">×</button>
+        </div>
+
+        <div class="meta-currency">
+            <div class="currency-info">
+                <span class="currency-icon">💎</span>
+                <span class="currency-value">{{ gameState.metaCurrency }} {{ translationService.translate('SHARDS')
+                    }}</span>
+            </div>
+            <div class="exchange-actions">
+                <button class="exchange-btn" [disabled]="gameState.chips < 1000" (click)="exchange(1000)">
+                    -1000 💰 ➔ +10 💎
+                </button>
+            </div>
+        </div>
+
+        <div class="skins-grid">
+            @for (skin of availableSkins; track skin.id) {
+            <div class="skin-card" [class.active]="gameState.activeSkinId === skin.id"
+                [class.locked]="!isUnlocked(skin.id)">
+                <div class="skin-preview" [style.border-color]="skin.borderColor">
+                    <div class="preview-palette">
+                        @for (color of skin.colors; track $index) {
+                        <div class="color-dot" [style.background-color]="color"></div>
+                        }
+                    </div>
+                </div>
+                <div class="skin-info">
+                    <h3>{{ skin.name }}</h3>
+                    <p>{{ skin.description }}</p>
+                </div>
+                <div class="skin-actions">
+                    @if (isUnlocked(skin.id)) {
+                    <button class="equip-btn" [disabled]="gameState.activeSkinId === skin.id" (click)="equip(skin.id)">
+                        {{ gameState.activeSkinId === skin.id ? 'Equipped' : 'Equip' }}
+                    </button>
+                    } @else {
+                    <button class="buy-btn" [disabled]="gameState.metaCurrency < skin.price" (click)="buy(skin.id)">
+                        {{ skin.price }} 💎
+                    </button>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>

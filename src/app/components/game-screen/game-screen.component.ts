@@ -1,16 +1,19 @@
 import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GameService } from '../../services/game.service';
+import { GameService, AVAILABLE_SKINS } from '../../services/game.service';
 import { RouletteWheelComponent } from '../roulette-wheel/roulette-wheel.component';
 import { UpgradeShopComponent } from '../upgrade-shop/upgrade-shop.component';
 import { JokerShopComponent } from '../joker-shop/joker-shop.component';
 import { GameOverModalComponent } from '../game-over-modal/game-over-modal.component';
+import { BetSelectorComponent } from '../bet-selector/bet-selector.component';
+import { SkinShopComponent } from '../skin-shop/skin-shop.component';
+import { TranslationService } from '../../services/translation.service';
 import { GameState } from '../../models/game.model';
 
 @Component({
     selector: 'app-game-screen',
     standalone: true,
-    imports: [CommonModule, RouletteWheelComponent, UpgradeShopComponent, JokerShopComponent, GameOverModalComponent],
+    imports: [CommonModule, RouletteWheelComponent, UpgradeShopComponent, JokerShopComponent, GameOverModalComponent, BetSelectorComponent, SkinShopComponent],
     templateUrl: './game-screen.component.html',
     styleUrls: ['./game-screen.component.css']
 })
@@ -20,19 +23,30 @@ export class GameScreenComponent {
     gameState!: GameState;
     isSpinning = false;
     isJokerShopVisible = false;
+    isSkinShopVisible = false;
     showWinAnimation = false;
 
-    constructor(public gameService: GameService) {
+    constructor(
+        public gameService: GameService,
+        public translationService: TranslationService
+    ) {
         this.gameService.state$.subscribe(state => {
             this.gameState = state;
         });
     }
 
+    get activeSkinData() {
+        return AVAILABLE_SKINS.find(s => s.id === this.gameState?.activeSkinId);
+    }
+
     handleSpin(): void {
         if (this.isSpinning || (this.gameState.blindState.spinsRemaining || 0) <= 0) return;
+        if (this.gameState.chips < this.gameState.selectedBet) return;
 
         this.isSpinning = true;
-        this.gameService.bet(10);
+
+        // Deduct chips at start of spin
+        this.gameService.addChips(-this.gameState.selectedBet);
         this.gameService.resetWin();
         this.showWinAnimation = false;
 
@@ -44,7 +58,7 @@ export class GameScreenComponent {
     onSpinComplete(sectorIndex: number): void {
         this.isSpinning = false;
         const sector = this.gameState.sectors[sectorIndex];
-        const winAmount = 10 * sector.multiplier;
+        const winAmount = this.gameState.selectedBet * sector.multiplier;
 
         this.gameService.spin(sectorIndex, winAmount);
         this.showWinAnimation = true;
@@ -101,6 +115,14 @@ export class GameScreenComponent {
     onJokerPurchased(): void {
         // Joker was purchased, modal will close automatically
         console.log('Joker purchased!');
+    }
+
+    openSkinShop(): void {
+        this.isSkinShopVisible = true;
+    }
+
+    closeSkinShop(): void {
+        this.isSkinShopVisible = false;
     }
 
     addWinningChips(): void {

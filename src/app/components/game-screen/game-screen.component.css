@@ -19,10 +19,11 @@
 
 .title {
     color: var(--color-primary);
-    font-size: 20px;
+    font-size: clamp(16px, 4vw, 24px);
     font-weight: 900;
     letter-spacing: 2px;
     margin: 0;
+    text-align: center;
 }
 
 .progression-box {
@@ -59,7 +60,7 @@
 }
 
 .blind-info .value {
-    font-size: 14px;
+    font-size: clamp(12px, 3vw, 14px);
     font-weight: 900;
     white-space: nowrap;
 }
@@ -104,6 +105,44 @@
     font-size: 14px;
     font-weight: bold;
     text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+}
+
+.lang-toggle {
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 900;
+    margin-left: var(--spacing-sm);
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.lang-toggle:hover {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 0 10px var(--color-primary);
+}
+
+.skin-shop-btn {
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid #f43f5e;
+    color: #f43f5e;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: var(--spacing-sm);
+    transition: all 0.2s ease;
+}
+
+.skin-shop-btn:hover {
+    background: #f43f5e;
+    color: white;
+    box-shadow: 0 0 10px #f43f5e;
 }
 
 .debug-chips-btn {
@@ -206,7 +245,7 @@
 }
 
 .spins-counter .value {
-    font-size: 24px;
+    font-size: clamp(20px, 5vw, 28px);
     font-weight: 900;
     color: var(--color-text);
 }
@@ -232,7 +271,7 @@
 
 .win-text {
     color: var(--color-win);
-    font-size: 48px;
+    font-size: clamp(32px, 10vw, 48px);
     font-weight: bold;
     text-shadow: 0 0 20px var(--color-win);
     animation: pulse 1s infinite;
@@ -241,7 +280,7 @@
 .win-text.big-win {
     color: var(--color-primary);
     text-shadow: 0 0 20px var(--color-primary), 0 0 40px var(--color-primary);
-    font-size: 64px;
+    font-size: clamp(48px, 15vw, 64px);
 }
 
 .footer {
@@ -259,9 +298,9 @@
 .spin-button {
     background: linear-gradient(135deg, var(--color-secondary) 0%, #d946a6 100%);
     color: var(--color-text);
-    font-size: 24px;
+    font-size: clamp(18px, 5vw, 24px);
     font-weight: 900;
-    padding: var(--spacing-md) calc(var(--spacing-xl) * 2);
+    padding: var(--spacing-md) clamp(var(--spacing-lg), 10vw, calc(var(--spacing-xl) * 2));
     border-radius: var(--radius-lg);
     box-shadow: 0 0 20px rgba(236, 72, 153, 0.4),
         0 4px 10px rgba(0, 0, 0, 0.3);
@@ -449,51 +488,85 @@
 }
 
 /* Responsive */
-@media (min-width: 768px) {
-    .game-container {
-        max-width: 600px;
-        margin: 0 auto;
+@media (max-width: 768px) {
+    .header {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+        justify-content: center;
+        padding: var(--spacing-sm) 0;
     }
 
-    .title {
-        font-size: 24px;
-    }
-}
-
-@media (max-width: 480px) {
-    .title {
-        font-size: 16px;
+    .stat-box {
+        order: 1;
+        padding: var(--spacing-xs) var(--spacing-sm);
     }
 
-    .spin-button {
-        font-size: 20px;
-        padding: var(--spacing-sm) var(--spacing-xl);
+    .title-container {
+        order: 0;
+        width: 100%;
     }
 
-    .win-text {
-        font-size: 36px;
+    .progression-box {
+        order: 2;
+        width: 100%;
+        justify-content: center;
+        gap: var(--spacing-xs);
     }
 
-    .win-text.big-win {
-        font-size: 48px;
+    .ante-info,
+    .blind-info {
+        min-width: 70px;
+        padding: 4px 8px;
+    }
+
+    .round-stats {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .score-progress {
+        width: 100%;
+    }
+
+    .spins-counter {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 16px;
+    }
+
+    .spins-counter .value {
+        line-height: 1;
     }
 
     .modifiers-row {
-        gap: var(--spacing-sm);
+        gap: 8px;
+        padding: 8px;
         margin-top: var(--spacing-md);
     }
 
     .modifier-slot {
-        min-width: 60px;
-        height: 80px;
+        min-width: 55px;
+        height: 75px;
     }
 
     .modifier-icon {
-        font-size: 24px;
+        width: 45px;
+        height: 45px;
     }
 
-    .modifier-name {
-        font-size: 8px;
+    .modifier-label {
+        font-size: 9px;
+    }
+}
+
+@media (min-width: 769px) {
+    .game-container {
+        max-width: 600px;
+        margin: 0 auto;
     }
 }
 

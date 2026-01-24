@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
 import { JokerService } from '../../services/joker.service';
+import { TranslationService } from '../../services/translation.service';
 import { Joker } from '../../models/game.model';
 
 @Component({
@@ -24,7 +25,8 @@ export class JokerShopComponent implements OnInit {
 
   constructor(
     private gameService: GameService,
-    private jokerService: JokerService
+    private jokerService: JokerService,
+    public translationService: TranslationService
   ) { }
 
   ngOnInit(): void {

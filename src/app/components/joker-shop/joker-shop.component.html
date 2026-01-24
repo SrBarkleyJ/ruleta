@@ -2,14 +2,14 @@
 <div class="modal-overlay" (click)="closeModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h2 class="modal-title">JOKER SHOP</h2>
-            <button class="close-btn" (click)="closeModal()">✕</button>
+            <h2 class="modal-title">{{ translationService.translate('JOKER_SHOP') }}</h2>
+            <button class="close-btn" (click)="closeModal()">{{ translationService.translate('CLOSE') }}</button>
         </div>
 
         <div class="shop-info">
             <div class="info-item">
                 <span class="info-icon">💰</span>
-                <span class="info-text">{{ chips }} Chips</span>
+                <span class="info-text">{{ chips }} {{ translationService.translate('CHIPS') }}</span>
             </div>
             <div class="info-item">
                 <span class="info-icon">🃏</span>
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <h3 class="subtitle">Available Jokers:</h3>
+        <h3 class="subtitle">{{ translationService.translate('AVAILABLE_JOKERS') }}</h3>
 
         <div class="joker-grid">
             @for (joker of shopJokers; track joker.id) {
@@ -44,12 +44,12 @@
 
                         @if (canBuyJoker(joker)) {
                         <button class="buy-button" (click)="buyJoker(joker); $event.stopPropagation()">
-                            BUY
+                            {{ translationService.translate('BUY') }}
                         </button>
                         } @else if (activeJokerCount >= MAX_JOKERS) {
-                        <span class="disabled-text">FULL</span>
+                        <span class="disabled-text">{{ translationService.translate('FULL') }}</span>
                         } @else {
-                        <span class="disabled-text">TOO EXPENSIVE</span>
+                        <span class="disabled-text">{{ translationService.translate('TOO_EXPENSIVE') }}</span>
                         }
                     </div>
                 </div>
@@ -59,12 +59,12 @@
 
         <button class="refresh-button" (click)="refreshShop()">
             <span class="refresh-icon">🔄</span>
-            Refresh Shop (Free)
+            {{ translationService.translate('REFRESH_SHOP') }}
         </button>
 
         @if (activeJokerCount >= MAX_JOKERS) {
         <div class="warning-banner">
-            ⚠️ You have maximum jokers! Remove one to buy more.
+            {{ translationService.translate('MAX_JOKERS_WARNING') }}
         </div>
         }
     </div>

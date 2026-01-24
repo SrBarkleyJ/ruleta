@@ -6,6 +6,20 @@ export interface Sector {
     multiplier: number;
     weight: number; // Higher weight = higher probability of being selected
     isCustomized?: boolean;
+    isDeath?: boolean;
+    shardProbability?: number; // Probability (0-1) of earning shards
+    shardAmount?: number; // Amount of shards to earn
+}
+
+export interface WheelSkin {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    colors: string[]; // Palette for sectors
+    borderColor: string;
+    pointerColor: string;
+    isLocked: boolean;
 }
 
 // Joker effects that modify gameplay
@@ -80,6 +94,11 @@ export interface GameState {
     metaCurrency: number; // Persistent currency across runs
     isGameOver: boolean;
     isShopOpen: boolean;
+    selectedBet: number;
+    availableBets: number[];
+    activeSkinId: string;
+    unlockedSkinIds: string[];
+    version: number;
 }
 
 // Upgrade options
@@ -87,7 +106,7 @@ export interface Upgrade {
     id: string;
     name: string;
     cost: number;
-    type: 'mult' | 'color' | 'weight';
+    type: 'mult' | 'color' | 'weight' | 'shard';
     value: number | string;
     color: string;
     description?: string;

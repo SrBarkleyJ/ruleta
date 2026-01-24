@@ -10,19 +10,26 @@
         </div>
 
         <div class="title-container">
-            <h1 class="title neon-glow">NEON ROULETTE</h1>
+            <h1 class="title neon-glow">{{ translationService.translate('TITLE') }}</h1>
             <div class="meta-stats">
-                <span class="meta-item">💎 {{ gameState.metaCurrency }} Shards</span>
+                <span class="meta-item">💎 {{ gameState.metaCurrency }} {{ translationService.translate('SHARDS')
+                    }}</span>
+                <button class="skin-shop-btn" (click)="openSkinShop()" title="Skin Shop">
+                    🎨
+                </button>
+                <button class="lang-toggle" (click)="translationService.toggleLanguage()">
+                    {{ translationService.getLanguage().toUpperCase() }}
+                </button>
             </div>
         </div>
 
         <div class="progression-box">
             <div class="ante-info">
-                <span class="label">ANTE</span>
+                <span class="label">{{ translationService.translate('ANTE') }}</span>
                 <span class="value">{{ gameState.currentAnte }}</span>
             </div>
             <div class="blind-info" [attr.data-type]="gameState.blindState.type">
-                <span class="value">{{ gameState.blindState.type }} BLIND</span>
+                <span class="value">{{ translationService.translate(gameState.blindState.type + '_BLIND') }}</span>
             </div>
         </div>
     </div>
@@ -31,8 +38,10 @@
         <div class="round-stats">
             <div class="score-progress">
                 <div class="progress-labels">
-                    <span class="current">Score: {{ gameState.blindState.currentScore }}</span>
-                    <span class="target">Target: {{ gameState.blindState.targetScore }}</span>
+                    <span class="current">{{ translationService.translate('SCORE') }}: {{
+                        gameState.blindState.currentScore }}</span>
+                    <span class="target">{{ translationService.translate('TARGET') }}: {{
+                        gameState.blindState.targetScore }}</span>
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar"
@@ -42,14 +51,15 @@
             </div>
 
             <div class="spins-counter">
-                <span class="label">SPINS LEFT</span>
+                <span class="label">{{ translationService.translate('SPINS_LEFT') }}</span>
                 <span class="value" [class.low]="gameState.blindState.spinsRemaining <= 1">
                     {{ gameState.blindState.spinsRemaining }}
                 </span>
             </div>
         </div>
 
-        <app-roulette-wheel [sectors]="gameState.sectors" (spinComplete)="onSpinComplete($event)">
+        <app-roulette-wheel [sectors]="gameState.sectors" [skin]="activeSkinData"
+            (spinComplete)="onSpinComplete($event)">
         </app-roulette-wheel>
 
         <div class="win-container" [class.show]="showWinAnimation && gameState.lastWin > 0">
@@ -81,22 +91,24 @@
     </div>
 
     <div class="footer">
+        <app-bet-selector></app-bet-selector>
+
         <div class="controls">
             <button class="spin-button"
-                [disabled]="isSpinning || gameState.blindState.spinsRemaining <= 0 || gameState.blindState.currentScore >= gameState.blindState.targetScore"
+                [disabled]="isSpinning || gameState.blindState.spinsRemaining <= 0 || gameState.blindState.currentScore >= gameState.blindState.targetScore || gameState.chips < gameState.selectedBet"
                 (click)="handleSpin()">
-                SPIN (10)
+                {{ translationService.translate('SPIN') }} ({{gameState.selectedBet}})
             </button>
         </div>
 
         <div class="upgrade-teaser">
             <button class="upgrade-card" (click)="openShop()">
                 <span class="upgrade-icon">📈</span>
-                <span class="upgrade-title">Upgrade Sector</span>
+                <span class="upgrade-title">{{ translationService.translate('UPGRADE_SECTOR') }}</span>
             </button>
             <button class="upgrade-card">
                 <span class="upgrade-icon">🔄</span>
-                <span class="upgrade-title">New Wheel</span>
+                <span class="upgrade-title">{{ translationService.translate('NEW_WHEEL') }}</span>
             </button>
         </div>
     </div>
@@ -112,5 +124,9 @@
 
     <app-game-over-modal [visible]="gameState.isGameOver" [stats]="gameState.runStats" (restart)="closeGameOver()">
     </app-game-over-modal>
+
+    @if (isSkinShopVisible) {
+    <app-skin-shop (close)="closeSkinShop()"></app-skin-shop>
+    }
 </div>
 }

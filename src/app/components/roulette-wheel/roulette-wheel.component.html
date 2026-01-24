@@ -12,8 +12,18 @@
                 </text>
             </g>
             }
-            <circle [attr.cx]="radius" [attr.cy]="radius" r="20" fill="#0a0a0f" stroke="#a855f7" stroke-width="3" />
+            <circle [attr.cx]="radius" [attr.cy]="radius" r="20" fill="#0a0a0f"
+                [attr.stroke]="skin?.borderColor || '#a855f7'" stroke-width="3" />
         </g>
     </svg>
-    <div class="indicator"></div>
+
+    <!-- Result Overlay -->
+    @if (showResultOverlay && winningSector) {
+    <div class="result-overlay" [style.border-color]="winningSector.color">
+        <div class="result-content">
+            <div class="result-label" [style.color]="winningSector.color">{{ winningSector.label }}</div>
+            <div class="result-mult">{{ winningSector.multiplier }}x</div>
+        </div>
+    </div>
+    }
 </div>

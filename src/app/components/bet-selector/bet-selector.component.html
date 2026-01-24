@@ -1,0 +1,12 @@
+<div class="bet-selector-container">
+    <div class="label">{{ translationService.translate('SELECT_BET') }}</div>
+    <div class="bets-grid">
+        @for (amount of (gameService.state$ | async)?.availableBets; track amount) {
+        <button class="bet-button" [class.selected]="(gameService.state$ | async)?.selectedBet === amount"
+            [disabled]="((gameService.state$ | async)?.chips || 0) < amount" (click)="selectBet(amount)">
+            <span class="currency">$</span>
+            <span class="amount">{{amount}}</span>
+        </button>
+        }
+    </div>
+</div>

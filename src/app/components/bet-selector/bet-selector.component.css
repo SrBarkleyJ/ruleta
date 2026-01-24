@@ -1,0 +1,92 @@
+.bet-selector-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(4px);
+}
+
+.label {
+    font-size: 10px;
+    font-weight: 900;
+    color: var(--color-text-secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.bets-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-xs);
+}
+
+.bet-button {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 65px;
+    justify-content: center;
+}
+
+.bet-button:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    background: rgba(168, 85, 247, 0.1);
+    transform: translateY(-2px);
+}
+
+.bet-button.selected {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border-color: transparent;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
+.bet-button.selected .currency,
+.bet-button.selected .amount {
+    color: white;
+}
+
+.bet-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+.currency {
+    color: var(--color-gold);
+    font-weight: 900;
+    font-size: 12px;
+}
+
+.amount {
+    color: var(--color-text);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+    .bet-selector-container {
+        padding: var(--spacing-xs);
+    }
+
+    .bet-button {
+        padding: 4px 8px;
+        min-width: 55px;
+    }
+
+    .amount {
+        font-size: 12px;
+    }
+}

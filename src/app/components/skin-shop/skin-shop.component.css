@@ -1,0 +1,211 @@
+.shop-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.shop-container {
+    background: #0f172a;
+    border: 2px solid #1e293b;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.2);
+    overflow: hidden;
+}
+
+.shop-header {
+    padding: 20px;
+    border-bottom: 1px solid #1e293b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.shop-header h2 {
+    margin: 0;
+    color: #f8fafc;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #f1f5f9;
+}
+
+.meta-currency {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(56, 189, 248, 0.1);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.currency-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.currency-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+.exchange-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.exchange-btn {
+    background: #0ea5e9;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.exchange-btn:hover:not(:disabled) {
+    background: #0284c7;
+    transform: scale(1.05);
+}
+
+.exchange-btn:disabled {
+    background: #334155;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.skins-grid {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.skin-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.skin-card:hover {
+    transform: translateY(-5px);
+    border-color: #475569;
+}
+
+.skin-card.active {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.skin-preview {
+    height: 100px;
+    background: #020617;
+    border-radius: 10px;
+    border-width: 3px;
+    border-style: solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.preview-palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.color-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.skin-info h3 {
+    margin: 0;
+    color: #f1f5f9;
+    font-size: 1.1rem;
+}
+
+.skin-info p {
+    margin: 5px 0 0;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.skin-actions {
+    margin-top: auto;
+}
+
+.equip-btn,
+.buy-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.equip-btn {
+    background: #6366f1;
+    color: white;
+}
+
+.equip-btn:disabled {
+    background: #334155;
+    color: #94a3b8;
+    cursor: default;
+}
+
+.buy-btn {
+    background: #0ea5e9;
+    color: white;
+}
+
+.buy-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.buy-btn:hover:not(:disabled) {
+    background: #0284c7;
+}
