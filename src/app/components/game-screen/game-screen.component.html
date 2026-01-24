@@ -34,82 +34,90 @@
         </div>
     </div>
 
-    <div class="game-area">
-        <div class="round-stats">
-            <div class="score-progress">
-                <div class="progress-labels">
-                    <span class="current">{{ translationService.translate('SCORE') }}: {{
-                        gameState.blindState.currentScore }}</span>
-                    <span class="target">{{ translationService.translate('TARGET') }}: {{
-                        gameState.blindState.targetScore }}</span>
+    <div class="main-layout">
+        <!-- Left Column: Wheel and Result -->
+        <div class="layout-left">
+            <div class="wheel-wrapper">
+                <app-roulette-wheel [sectors]="gameState.sectors" [skin]="activeSkinData"
+                    (spinComplete)="onSpinComplete($event)">
+                </app-roulette-wheel>
+
+                <div class="win-container" [class.show]="showWinAnimation && gameState.lastWin > 0">
+                    @if (gameState.lastWin > 0) {
+                    <div class="win-text" [class.big-win]="gameState.lastWin >= 50">
+                        +{{ gameState.lastWin }}
+                    </div>
+                    }
                 </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar"
-                        [style.width.%]="(gameState.blindState.currentScore / gameState.blindState.targetScore) * 100">
+            </div>
+        </div>
+
+        <!-- Right Column: Stats, Modifiers, and Controls -->
+        <div class="layout-right">
+            <div class="round-stats">
+                <div class="score-progress">
+                    <div class="progress-labels">
+                        <span class="current">{{ translationService.translate('SCORE') }}: {{
+                            gameState.blindState.currentScore }}</span>
+                        <span class="target">{{ translationService.translate('TARGET') }}: {{
+                            gameState.blindState.targetScore }}</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar"
+                            [style.width.%]="(gameState.blindState.currentScore / gameState.blindState.targetScore) * 100">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="spins-counter">
-                <span class="label">{{ translationService.translate('SPINS_LEFT') }}</span>
-                <span class="value" [class.low]="gameState.blindState.spinsRemaining <= 1">
-                    {{ gameState.blindState.spinsRemaining }}
-                </span>
-            </div>
-        </div>
-
-        <app-roulette-wheel [sectors]="gameState.sectors" [skin]="activeSkinData"
-            (spinComplete)="onSpinComplete($event)">
-        </app-roulette-wheel>
-
-        <div class="win-container" [class.show]="showWinAnimation && gameState.lastWin > 0">
-            @if (gameState.lastWin > 0) {
-            <div class="win-text" [class.big-win]="gameState.lastWin >= 50">
-                +{{ gameState.lastWin }}
-            </div>
-            }
-        </div>
-
-        <!-- NEW: Joker/Amulet Modifiers Row -->
-        <div class="modifiers-row">
-            @for (joker of gameState.jokers; track joker.id) {
-            <div class="modifier-container">
-                <div class="modifier-slot filled" [attr.data-rarity]="joker.rarity" [title]="joker.description">
-                    <img [src]="joker.icon" [alt]="joker.name" class="modifier-icon">
+                <div class="spins-counter">
+                    <span class="label">{{ translationService.translate('SPINS_LEFT') }}</span>
+                    <span class="value" [class.low]="gameState.blindState.spinsRemaining <= 1">
+                        {{ gameState.blindState.spinsRemaining }}
+                    </span>
                 </div>
-                <span class="modifier-label">{{ joker.name }}</span>
             </div>
-            }
 
-            <!-- Empty slots up to max (e.g., 5 total) -->
-            @for (i of getEmptySlots(); track i) {
-            <div class="modifier-slot empty" (click)="openJokerShop()">
-                <span class="empty-icon">+</span>
+            <!-- NEW: Joker/Amulet Modifiers Row -->
+            <div class="modifiers-row">
+                @for (joker of gameState.jokers; track joker.id) {
+                <div class="modifier-container">
+                    <div class="modifier-slot filled" [attr.data-rarity]="joker.rarity" [title]="joker.description">
+                        <img [src]="joker.icon" [alt]="joker.name" class="modifier-icon">
+                    </div>
+                    <span class="modifier-label">{{ joker.name }}</span>
+                </div>
+                }
+
+                <!-- Empty slots up to max (e.g., 5 total) -->
+                @for (i of getEmptySlots(); track i) {
+                <div class="modifier-slot empty" (click)="openJokerShop()">
+                    <span class="empty-icon">+</span>
+                </div>
+                }
             </div>
-            }
-        </div>
-    </div>
 
-    <div class="footer">
-        <app-bet-selector></app-bet-selector>
+            <div class="footer">
+                <app-bet-selector></app-bet-selector>
 
-        <div class="controls">
-            <button class="spin-button"
-                [disabled]="isSpinning || gameState.blindState.spinsRemaining <= 0 || gameState.blindState.currentScore >= gameState.blindState.targetScore || gameState.chips < gameState.selectedBet"
-                (click)="handleSpin()">
-                {{ translationService.translate('SPIN') }} ({{gameState.selectedBet}})
-            </button>
-        </div>
+                <div class="controls">
+                    <button class="spin-button"
+                        [disabled]="isSpinning || gameState.blindState.spinsRemaining <= 0 || gameState.blindState.currentScore >= gameState.blindState.targetScore || gameState.chips < gameState.selectedBet"
+                        (click)="handleSpin()">
+                        {{ translationService.translate('SPIN') }} ({{gameState.selectedBet}})
+                    </button>
+                </div>
 
-        <div class="upgrade-teaser">
-            <button class="upgrade-card" (click)="openShop()">
-                <span class="upgrade-icon">📈</span>
-                <span class="upgrade-title">{{ translationService.translate('UPGRADE_SECTOR') }}</span>
-            </button>
-            <button class="upgrade-card">
-                <span class="upgrade-icon">🔄</span>
-                <span class="upgrade-title">{{ translationService.translate('NEW_WHEEL') }}</span>
-            </button>
+                <div class="upgrade-teaser">
+                    <button class="upgrade-card" (click)="openShop()">
+                        <span class="upgrade-icon">📈</span>
+                        <span class="upgrade-title">{{ translationService.translate('UPGRADE_SECTOR') }}</span>
+                    </button>
+                    <button class="upgrade-card">
+                        <span class="upgrade-icon">🔄</span>
+                        <span class="upgrade-title">{{ translationService.translate('NEW_WHEEL') }}</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
