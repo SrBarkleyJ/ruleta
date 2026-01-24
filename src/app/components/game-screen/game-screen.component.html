@@ -112,9 +112,10 @@
                         <span class="upgrade-icon">📈</span>
                         <span class="upgrade-title">{{ translationService.translate('UPGRADE_SECTOR') }}</span>
                     </button>
-                    <button class="upgrade-card">
+                    <button class="upgrade-card" (click)="rerollWheel()" [disabled]="gameState.chips < 1000">
                         <span class="upgrade-icon">🔄</span>
                         <span class="upgrade-title">{{ translationService.translate('NEW_WHEEL') }}</span>
+                        <span class="upgrade-cost">1000 💰</span>
                     </button>
                 </div>
             </div>

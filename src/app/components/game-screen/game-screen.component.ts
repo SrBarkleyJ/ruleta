@@ -112,6 +112,15 @@ export class GameScreenComponent {
         this.isJokerShopVisible = false;
     }
 
+    rerollWheel(): void {
+        const cost = 1000;
+        if (this.gameState.chips < cost) return;
+
+        if (confirm(`¿Quieres comprar una NUEVA RUEDA por ${cost} fichas? Esto borrará tus mejoras actuales.`)) {
+            this.gameService.rerollWheel();
+        }
+    }
+
     onJokerPurchased(): void {
         // Joker was purchased, modal will close automatically
         console.log('Joker purchased!');

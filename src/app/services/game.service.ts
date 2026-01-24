@@ -293,6 +293,19 @@ export class GameService {
     }
 
     /**
+     * Deduct chips from the balance
+     */
+    spendChips(amount: number): void {
+        const currentState = this.stateSubject.value;
+        const newState = {
+            ...currentState,
+            chips: Math.max(0, currentState.chips - amount)
+        };
+        this.stateSubject.next(newState);
+        this.saveState(newState);
+    }
+
+    /**
      * Development tool: Add chips directly to the state
      */
     addChips(amount: number): void {
@@ -667,6 +680,53 @@ export class GameService {
             this.saveState(newState);
             this.applySkinToSectors(skinId);
         }
+    }
+
+    /**
+     * Discard current wheel and generate a fresh configuration.
+     * Cost: 1000 chips
+     */
+    rerollWheel(): boolean {
+        const currentState = this.stateSubject.value;
+        const REROLL_COST = 1000;
+
+        if (currentState.chips < REROLL_COST) return false;
+
+        // Pool of multipliers for a "standard" balanced wheel
+        const multPool = [0, 0.5, 1, 1, 2, 2, 5, 10];
+        // Shuffle pool
+        const shuffledMults = [...multPool].sort(() => Math.random() - 0.5);
+
+        const freshSectors: Sector[] = shuffledMults.map((mult, i) => ({
+            id: `fresh_${Date.now()}_${i}`,
+            label: mult === 0 ? '0x' : `${mult}x`,
+            multiplier: mult,
+            color: mult >= 5 ? '#ec4899' : (mult >= 2 ? '#312e81' : '#1e293b'),
+            weight: 1,
+            shardProbability: 0.01,
+            shardAmount: 10
+        }));
+
+        // Handle special death sector (ensure at least one 💀 if feeling brave, but let's stick to multipliers for now)
+        // Or simply replace 0x with 💀 randomly
+        const deathIndex = Math.floor(Math.random() * freshSectors.length);
+        if (freshSectors[deathIndex].multiplier === 0) {
+            freshSectors[deathIndex].label = '💀';
+            freshSectors[deathIndex].isDeath = true;
+            freshSectors[deathIndex].color = '#000000';
+        }
+
+        const newState: GameState = {
+            ...currentState,
+            chips: currentState.chips - REROLL_COST,
+            sectors: freshSectors
+        };
+
+        this.stateSubject.next(newState);
+        this.saveState(newState);
+        // Apply current skin to the new sectors
+        this.applySkinToSectors(currentState.activeSkinId);
+        return true;
     }
 
     /**

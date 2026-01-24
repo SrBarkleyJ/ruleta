@@ -100,7 +100,7 @@ export class UpgradeShopComponent {
             return;
         }
 
-        this.gameService.bet(upgrade.cost);
+        this.gameService.spendChips(upgrade.cost);
 
         if (upgrade.type === 'mult') {
             this.gameService.upgradeSector(this.selectedSector.id, upgrade.value as number);

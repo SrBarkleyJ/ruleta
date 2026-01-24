@@ -55,7 +55,7 @@ export class JokerShopComponent implements OnInit {
     if (!this.canBuyJoker(joker)) return;
 
     // Deduct chips
-    this.gameService.bet(joker.cost);
+    this.gameService.spendChips(joker.cost);
 
     // Add joker to active jokers
     this.gameService.addJoker(joker);
